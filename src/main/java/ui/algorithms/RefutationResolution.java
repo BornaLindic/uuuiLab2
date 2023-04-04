@@ -14,11 +14,10 @@ public class RefutationResolution {
         Clause goal = clauses.remove(clauses.size()-1);
         Set<Clause> sos = negateGoalClause(goal); //set of support
         Set<Clause> entry = new HashSet<>(clauses);
-
-        Set<Clause> newClauses = new HashSet<>();
         Set<Set<Clause>> checkedPairs = new HashSet<>();
 
         while (true) {
+            Set<Clause> newClauses = new HashSet<>();
             Set<Clause> union = new HashSet<>(sos);
             union.addAll(entry);
 
@@ -55,7 +54,7 @@ public class RefutationResolution {
                 }
             }
             
-            if (union.containsAll(newClauses)) {
+            if (union.containsAll(newClauses) || newClauses.isEmpty()) {
                 System.out.println("[CONCLUSION]: " + goalClause + " is unknown");
                 return false;
             }
