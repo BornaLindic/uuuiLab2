@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        ClausesDescriptor clausesDescriptor = DataLoader.loadClauses(Paths.get("examples/resolution_small_example.txt"));
+        ClausesDescriptor clausesDescriptor = DataLoader.loadClauses(Paths.get("examples/resolution_coffee_noheater.txt"));
 
         RefutationResolution rf = new RefutationResolution();
         rf.propositionalLogicResolution(clausesDescriptor.getClauses(), clausesDescriptor.getGoalClause());

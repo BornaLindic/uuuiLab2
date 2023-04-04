@@ -51,13 +51,12 @@ public class RefutationResolution {
 
                     resolvents.removeIf(this::isUnimportant);
                     newClauses.addAll(resolvents);
-
                     checkedPairs.add(pair);
                 }
             }
             
             if (union.containsAll(newClauses)) {
-                System.out.println("[CONCLUSION]: clause is unknown");
+                System.out.println("[CONCLUSION]: " + goalClause + " is unknown");
                 return false;
             }
 
