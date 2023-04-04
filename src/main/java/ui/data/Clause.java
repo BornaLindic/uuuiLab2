@@ -1,9 +1,6 @@
 package ui.data;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Clause {
 
@@ -21,6 +18,18 @@ public class Clause {
         this.parents = parents;
     }
 
+    public Set<String> getLiterals() {
+        return literals;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public List<Clause> getParents() {
+        return parents;
+    }
+
     @Override
     public String toString() {
         return "Clause{" +
@@ -28,5 +37,18 @@ public class Clause {
                 ", index=" + index +
                 ", parents=" + parents +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Clause clause = (Clause) o;
+        return Objects.equals(literals, clause.literals);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(literals);
     }
 }
