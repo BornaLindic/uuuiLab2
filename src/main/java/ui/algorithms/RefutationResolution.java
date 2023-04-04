@@ -108,7 +108,43 @@ public class RefutationResolution {
 
 
     private Set<Clause> plResolve(Clause first, Clause second) {
-        return new HashSet<>();
+        Set<Clause> resolvents = new HashSet<>();
+
+        for (String literal : first.getLiterals()) {
+            Set<String> resolventLiterals = new HashSet<>();
+
+            if (literal.startsWith("~") && second.getLiterals().contains(literal.substring(1))) {
+                resolventLiterals.addAll(first.getLiterals());
+                resolventLiterals.addAll(second.getLiterals());
+                resolventLiterals.remove(literal);
+                resolventLiterals.remove(literal.substring(1));
+
+                resolvents.add(new Clause(
+                        resolventLiterals,
+                        index++,
+                        List.of(first, second)
+                ));
+
+                if(resolventLiterals.isEmpty()) foundNIL = true;
+            }
+
+            if (!literal.startsWith("~") && second.getLiterals().contains("~" + literal)) {
+                resolventLiterals.addAll(first.getLiterals());
+                resolventLiterals.addAll(second.getLiterals());
+                resolventLiterals.remove(literal);
+                resolventLiterals.remove("~" + literal);
+
+                resolvents.add(new Clause(
+                        resolventLiterals,
+                        index++,
+                        List.of(first, second)
+                ));
+
+                if(resolventLiterals.isEmpty()) foundNIL = true;
+            }
+        }
+
+        return resolvents;
     }
 
 
