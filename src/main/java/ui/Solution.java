@@ -1,12 +1,28 @@
 package ui;
 
+import ui.algorithms.RefutationResolution;
+import ui.data.ClausesDescriptor;
+import ui.data.DataLoader;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+
 public class Solution {
 
 	public static void main(String ... args) {
-		System.out.println("Ovime kreće Vaš program.");
-		for(String arg : args) {
-			System.out.printf("Predan argument %s%n", arg);
+
+		try {
+			if (args[0].equals("resolution")) {
+				ClausesDescriptor clausesDescriptor = DataLoader.loadClauses(Paths.get(args[1]));
+
+				RefutationResolution rf = new RefutationResolution();
+				rf.propositionalLogicResolution(clausesDescriptor.getClauses(), clausesDescriptor.getGoalClause());
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
 	}
 
 }

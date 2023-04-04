@@ -9,7 +9,7 @@ public class RefutationResolution {
     private int index;
     private boolean foundNIL;
 
-    public boolean propositionalLogicResolution(List<Clause> clauses) {
+    public boolean propositionalLogicResolution(List<Clause> clauses, String goalClause) {
 
         Clause goal = clauses.remove(clauses.size()-1);
         Set<Clause> sos = negateGoalClause(goal); //set of support
@@ -44,7 +44,7 @@ public class RefutationResolution {
                     Set<Clause> resolvents = plResolve(first, second);
                     for (Clause resolvent : resolvents) {
                         if (resolvent.getLiterals().contains("NIL")) {
-                            formatOutput(resolvent, clauses.size(), goal);
+                            formatOutput(resolvent, clauses.size(), goalClause);
                             return true;
                         }
                     }
@@ -148,7 +148,7 @@ public class RefutationResolution {
     }
 
 
-    private void formatOutput(Clause nil, int inputSize, Clause goal) {
+    private void formatOutput(Clause nil, int inputSize, String goalClause) {
         Set<Clause> parents = new TreeSet<>(Comparator.comparingInt(Clause::getIndex));
 
         Queue<Clause> queue = new LinkedList<>();
@@ -178,8 +178,7 @@ public class RefutationResolution {
         }
 
         System.out.println("===============");
-        // todo remeber the true goal line
-        System.out.print("[CONCLUSION]: " + goal.getLiterals().toString().substring(1, goal.getLiterals().toString().length()-1) + " is true");
+        System.out.println("[CONCLUSION]: " + goalClause + " is true");
     }
 
 
