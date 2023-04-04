@@ -2,9 +2,7 @@ package ui.algorithms;
 
 import ui.data.Clause;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RefutationResolution {
     
@@ -13,22 +11,24 @@ public class RefutationResolution {
 
     public boolean propositionalLogicResolution(List<Clause> clauses) {
 
-        Set<Clause> sos = negateGoalClause(clauses.remove(clauses.size()-1)); //set of support
+        Clause goal = clauses.remove(clauses.size()-1);
+        Set<Clause> sos = negateGoalClause(goal); //set of support
         Set<Clause> entry = new HashSet<>(clauses);
-
-        // check if there is redundant or unimportant clauses in initial dataset
-        Set<Clause> union = new HashSet<>(sos);
-        union.addAll(entry);
-        for (Clause clause : union) {
-            if(isRedundant(clause, union) || isUnimportant(clause)) {
-                sos.remove(clause);
-                entry.remove(clause);
-            }
-        }
 
         Set<Clause> newClauses = new HashSet<>();
         Set<Set<Clause>> checkedPairs = new HashSet<>();
+
         while (true) {
+            Set<Clause> union = new HashSet<>(sos);
+            union.addAll(entry);
+
+            for (Clause clause : union) {
+                if(isRedundant(clause, union) || isUnimportant(clause)) {
+                    sos.remove(clause);
+                    entry.remove(clause);
+                }
+            }
+
             union = new HashSet<>(sos);
             union.addAll(entry);
 
@@ -42,13 +42,14 @@ public class RefutationResolution {
                     if(checkedPairs.contains(pair)) continue;
                     
                     Set<Clause> resolvents = plResolve(first, second);
-                    if(foundNIL) {
-                        System.out.println("ovdje formatirani ispis za pronalazak");
-                        return true;
+                    for (Clause resolvent : resolvents) {
+                        if (resolvent.getLiterals().contains("NIL")) {
+                            formatOutput(resolvent, clauses.size(), goal);
+                            return true;
+                        }
                     }
 
-                    Set<Clause> finalUnion = union;
-                    resolvents.removeIf(resolvent -> isRedundant(resolvent, finalUnion) || isUnimportant(resolvent));
+                    resolvents.removeIf(this::isUnimportant);
                     newClauses.addAll(resolvents);
 
                     checkedPairs.add(pair);
@@ -56,13 +57,12 @@ public class RefutationResolution {
             }
             
             if (union.containsAll(newClauses)) {
-                System.out.println("ispis za fail");
+                System.out.println("[CONCLUSION]: clause is unknown");
                 return false;
             }
 
             sos.addAll(newClauses);
         }
-
     }
 
 
@@ -92,7 +92,7 @@ public class RefutationResolution {
     private boolean isRedundant(Clause target, Set<Clause> clauses) {
         for (Clause other : clauses) {
             if(target.equals(other)) continue;
-            if(other.getLiterals().containsAll(target.getLiterals())) return true;
+            if(target.getLiterals().containsAll(other.getLiterals())) return true;
         }
         return false;
     }
@@ -119,13 +119,13 @@ public class RefutationResolution {
                 resolventLiterals.remove(literal);
                 resolventLiterals.remove(literal.substring(1));
 
+                if (resolventLiterals.isEmpty()) resolventLiterals.add("NIL");
+
                 resolvents.add(new Clause(
                         resolventLiterals,
                         index++,
                         List.of(first, second)
                 ));
-
-                if(resolventLiterals.isEmpty()) foundNIL = true;
             }
 
             if (!literal.startsWith("~") && second.getLiterals().contains("~" + literal)) {
@@ -134,17 +134,52 @@ public class RefutationResolution {
                 resolventLiterals.remove(literal);
                 resolventLiterals.remove("~" + literal);
 
+                if (resolventLiterals.isEmpty()) resolventLiterals.add("NIL");
+
                 resolvents.add(new Clause(
                         resolventLiterals,
                         index++,
                         List.of(first, second)
                 ));
-
-                if(resolventLiterals.isEmpty()) foundNIL = true;
             }
         }
 
         return resolvents;
+    }
+
+
+    private void formatOutput(Clause nil, int inputSize, Clause goal) {
+        Set<Clause> parents = new TreeSet<>(Comparator.comparingInt(Clause::getIndex));
+
+        Queue<Clause> queue = new LinkedList<>();
+        queue.add(nil);
+        while (!queue.isEmpty()) {
+            Clause curr = queue.poll();
+            parents.add(curr);
+            queue.addAll(curr.getParents());
+        }
+
+        int index = 0;
+        for (Clause clause : parents) {
+            if(index++ == inputSize+1) System.out.println("===============");
+
+            System.out.printf("%d. ", clause.getIndex());
+
+            List<String> literals = new ArrayList<>(clause.getLiterals());
+            for (int i = 0; i < literals.size(); i++) {
+                System.out.print(literals.get(i) + (i == literals.size()-1 ? "" : " v "));
+            }
+
+            if (clause.hasParents()) {
+                System.out.printf(" (%d, %d)",
+                        clause.getParents().get(0).getIndex(), clause.getParents().get(1).getIndex());
+            }
+            System.out.print("\n");
+        }
+
+        System.out.println("===============");
+        // todo remeber the true goal line
+        System.out.print("[CONCLUSION]: " + goal.getLiterals().toString().substring(1, goal.getLiterals().toString().length()-1) + " is true");
     }
 
 

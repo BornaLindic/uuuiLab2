@@ -30,6 +30,10 @@ public class Clause {
         return parents;
     }
 
+    public boolean hasParents() {
+        return !parents.isEmpty();
+    }
+
     @Override
     public String toString() {
         return "Clause{" +
