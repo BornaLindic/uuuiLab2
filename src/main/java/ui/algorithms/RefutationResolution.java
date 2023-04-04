@@ -43,7 +43,7 @@ public class RefutationResolution {
                     Set<Clause> resolvents = plResolve(first, second);
                     for (Clause resolvent : resolvents) {
                         if (resolvent.getLiterals().contains("NIL")) {
-                            formatOutput(resolvent, clauses.size(), goalClause);
+                            formatOutput(resolvent, goalClause);
                             return true;
                         }
                     }
@@ -146,7 +146,7 @@ public class RefutationResolution {
     }
 
 
-    private void formatOutput(Clause nil, int inputSize, String goalClause) {
+    private void formatOutput(Clause nil, String goalClause) {
         Set<Clause> parents = new TreeSet<>(Comparator.comparingInt(Clause::getIndex));
 
         Queue<Clause> queue = new LinkedList<>();
@@ -157,10 +157,7 @@ public class RefutationResolution {
             queue.addAll(curr.getParents());
         }
 
-        int index = 0;
         for (Clause clause : parents) {
-            if(index++ == inputSize+1) System.out.println("===============");
-
             System.out.printf("%d. ", clause.getIndex());
 
             List<String> literals = new ArrayList<>(clause.getLiterals());

@@ -27,4 +27,20 @@ public class DataLoader {
         return new ClausesDescriptor(clauses, goalClause);
     }
 
+
+    public static CookingDescriptor loadCooking(Path sourceClauses, Path sourceUserCommands) throws IOException {
+        ClausesDescriptor clausesDescriptor = loadClauses(sourceClauses);
+        List<String> userCommands = new ArrayList<>();
+
+        Scanner sc = new Scanner(sourceUserCommands);
+        String line = "";
+
+        while (sc.hasNextLine() && !(line = sc.nextLine().toLowerCase()).isEmpty()) {
+            if (line.startsWith("#")) continue;
+            userCommands.add(line);
+        }
+
+        return new CookingDescriptor(clausesDescriptor.getClauses(), userCommands);
+    }
+
 }
